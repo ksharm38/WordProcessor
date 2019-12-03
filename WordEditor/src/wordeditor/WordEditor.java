@@ -24,37 +24,15 @@ public class WordEditor {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        try {   // TODO code application logic here
-            // SaveFile();
-            File file = new File("C:\\Users\\kunnu\\Desktop\\test.txt");
-            ArrayList<String> input = new ArrayList<>();
-
-            /*BufferedReader br = new BufferedReader(new FileReader(file));   
-  String st; 
-  while ((st = br.readLine()) != null) 
-    input.add(st);
-      // input.add(br.readLine());
-    System.out.println(st); 
-    Parser.run(input);
-    ArrayList<String> output = Parser.output();
-            SaveFile(output);*/
-            String data = readFileAsString("C:\\Users\\kunnu\\Desktop\\test.txt");
-           String output =  FormatString(data);
-            SaveFile(output);
-            System.out.println(data);
-        } catch (Exception ex) {
-            
-        }
-    }
     
-    public static String readFileAsString(String fileName) throws Exception {
+    
+    public  String readFileAsString(String fileName) throws Exception {
         String data;
         data = new String(Files.readAllBytes(Paths.get(fileName)));
         return data;//.replaceAll("\r\n", "");
     }
     
-    public static String FormatString(String data) {
+    public String FormatString(String data) {
         try {
             char c;
             List<String> operation = new ArrayList<String>();
@@ -114,7 +92,7 @@ public class WordEditor {
         return "";
     }
     
-    public static String ChangeFormatOfString(List<String> list, String text) {
+    public String ChangeFormatOfString(List<String> list, String text) {
         try {
             
             for (int i = 0; i < list.size(); i++) {
@@ -162,33 +140,36 @@ public class WordEditor {
         return "";
     }
     
-    public static void SaveFile(String text) {
+    public int SaveFile(String text, String filePath) {
         try {
-            FileWriter writer = new FileWriter("MyFile.txt", true);
+            FileWriter writer = new FileWriter(filePath, true);
             writer.write(text);
             //writer.write("\r\n");   // write new line
-            writer.write("Good Bye!");
+            //writer.write("Good Bye!");
             writer.close();
+            return 1;
         } catch (IOException e) {
-            e.printStackTrace();
+            return 2;
+            //e.printStackTrace();
         }
+        
     }
     
-    public static void SaveFile(ArrayList<String> text) {
+    public void SaveFile(ArrayList<String> text) {
         try {
             FileWriter writer = new FileWriter("MyFile.txt", true);
             for (int i = 0; i < text.size(); i++) {
                 writer.write(text.get(i));
                 writer.write("\r\n");   // write new line
             }
-            writer.write("Good Bye!");
+            //writer.write("Good Bye!");
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     
-    public static String AlignRight(String str) {
+    public String AlignRight(String str) {
         int j = 0;
         int m = str.length() / 80;
 
@@ -196,10 +177,10 @@ public class WordEditor {
         String abc = "";
         while (j <= m) {
             if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80) - 1) + System.lineSeparator();
+                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
                 //  abc.format("%-10s",abc);
             } else {
-                abc = abc + StringUtils.leftPad(str.substring(80 * j, str.length()), 79) + System.lineSeparator();
+                abc = abc + StringUtils.leftPad(str.substring(80 * j, str.length()), 80) + System.lineSeparator();
                 
             }
             //call switch case
@@ -208,14 +189,14 @@ public class WordEditor {
         return abc;
     }
     
-    public static String AlignLeft(String str) {
+    public String AlignLeft(String str) {
         int j = 0;
         int m = str.length() / 80;
-        str = str.substring(1);
+       // str = str.substring(1);
         String abc = "";
         while (j <= m) {
             if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80) - 1) + System.lineSeparator();
+                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
                 //  abc.format("%-10s",abc);
             } else {
                 abc = abc + str.substring(80 * j, str.length()) + System.lineSeparator();
@@ -226,7 +207,7 @@ public class WordEditor {
         return abc;
     }
     
-    public static String AlignCenter(String str) {
+    public String AlignCenter(String str) {
         int j = 0;
         int m = str.length() / 80;
 
@@ -234,10 +215,10 @@ public class WordEditor {
         String abc = "";
         while (j <= m) {
             if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80) - 1) + System.lineSeparator();
+                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
                 //  abc.format("%-10s",abc);
             } else {
-                abc = abc + StringUtils.center(str.substring(80 * j, str.length()), 79) + System.lineSeparator();
+                abc = abc + StringUtils.center(str.substring(80 * j, str.length()), 80) + System.lineSeparator();
                 
             }
             //call switch case
@@ -247,7 +228,7 @@ public class WordEditor {
         
     }
     
-    public static String NIndentation(String str) {
+    public String NIndentation(String str) {
         int j = 0;
         
         str = str.trim();
@@ -255,9 +236,13 @@ public class WordEditor {
         String abc = "";
         while (j <= m) {
             if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80) - 1) + System.lineSeparator();
+                String z = str.substring(80 * j, (80 * j + 80));
+                int za = z.length();
+                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
                 //  abc.format("%-10s",abc);
             } else {
+                String z = str.substring(80 * j, str.length());
+                int za = z.length();
                 abc = abc + str.substring(80 * j, str.length()) + System.lineSeparator();
                 
             }
@@ -266,14 +251,14 @@ public class WordEditor {
         return abc;
     }
     
-    public static String BIndentation(String str) {
+    public String BIndentation(String str) {
         int j = 0;
         int m = str.length() / 80;
-        str = str.substring(1);
+        //str = str.substring(1);
         String abc = "";
         while (j <= m) {
             if (j < m) {
-                abc = abc + "          " + str.substring(70*j, (70*j+ 70) - 1)
+                abc = abc + "          " + str.substring(70*j, (70*j+ 70))
                         + System.lineSeparator();
                 //  abc.format("%-10s",abc);
             } else {
@@ -286,19 +271,19 @@ public class WordEditor {
         return abc;
     }
     
-    public static String IIndentation(String str) {
+    public String IIndentation(String str) {
         int j = 0;
         
         str = str.trim();
         String abc = "";
-        abc = abc + "     " + str.substring(0, 74)
+        abc = abc + "     " + str.substring(0, 75)
                 + System.lineSeparator();
         str = str.substring(75);
         int m = str.length() / 80;
         while (j <= m) {
             if (j < m) {
                 
-                abc = abc + str.substring(80 * j, (80 * j + 80) - 1)
+                abc = abc + str.substring(80 * j, (80 * j + 80))
                         + System.lineSeparator();
 
                 //  abc.format("%-10s",abc);
@@ -312,14 +297,14 @@ public class WordEditor {
         return abc;
     }
 
-    public static String BlankLine(String str) {
+    public String BlankLine(String str) {
         int j = 0;
         int m = str.length() / 80;
         str = str.substring(1);
         String abc = "";
         while (j <= m) {
             if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80) - 1) + System.lineSeparator();
+                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
                 //  abc.format("%-10s",abc);
             } else {
                 abc = abc + str.substring(80 * j, str.length())
@@ -331,13 +316,13 @@ public class WordEditor {
         return abc;
     }
 
-    public static String DoubleSpaceing(String str) {
+    public String DoubleSpaceing(String str) {
         int j = 0;
-        int m = str.trim().length() / 80;
+        int m = str.trim().replace("  ", "").length() / 80;
         String abc = "";
         while (j <= m) {
             if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80) - 1)
+                abc = abc + str.substring(80 * j, (80 * j + 80))
                         + System.lineSeparator() + System.lineSeparator();
                 //  abc.format("%-10s",abc);
             } else {
