@@ -17,21 +17,21 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  *
- * @author kunnu
+ * @author Kunal Sharma
  */
 public class WordEditor {
 
     /**
      * @param args the command line arguments
      */
-    
-    
-    public  String readFileAsString(String fileName) throws Exception {
+    String history = "";
+
+    public String readFileAsString(String fileName) throws Exception {
         String data;
         data = new String(Files.readAllBytes(Paths.get(fileName)));
         return data;//.replaceAll("\r\n", "");
     }
-    
+
     public String FormatString(String data) {
         try {
             char c;
@@ -41,9 +41,9 @@ public class WordEditor {
             String splittedStringArray[] = data.split("\n-");
             int count = splittedStringArray.length;
             for (int i = 0; i < count; i++) {
-                str = splittedStringArray[i].replace("\r\n", "").replace("\r", "").replace("-", "");
+                str = splittedStringArray[i].replace("\r", "").replace("-", "");
                 if (!str.isEmpty()) {
-                    
+
                     int strLength = str.length();
                     if (strLength == 1) {
                         operation.add(str);
@@ -52,49 +52,21 @@ public class WordEditor {
                         operation.add(operator);
                         output = output + ChangeFormatOfString(operation, str.substring(1, str.length()));
                         operation.clear();
-                        
+
                     }
-                    
+
                 }
             }
-//                 if(str.contains("\r\n"))
-//                 {
-//                   str = str.replaceAll("\r\n", "");
-//                 }
-//                 if(str.contains("\n"))
-//                 {
-//                   str = str.replaceAll("\n", "");
-//                 }
-            /* c = splittedStringArray[i].charAt(0);
-                //data= splittedStringArray[i];
-                int charCount = str.length();
-                String abc = "";
-                if (charCount <= 80) {
-                    str = "  " + str;
-                } else {
-                    str = str.substring(1);
-                    abc = NIndentation(str);
-                    //abc=AlighCenter(str);
-                    // abc=  MaxChar(str);
-                    // ChangeFormatOfString(c, str);
-                    SaveFile(abc);
-                    // j=str.length()/80;
-
-                    SaveFile(abc);
-
-                }*/
-
-            // }
-        return output;
+            return output;
         } catch (Exception ex) {
             System.out.println(ex);
         }
         return "";
     }
-    
-    public String ChangeFormatOfString(List<String> list, String text) {
+
+    public String ChangeFormatOfString(List<String> list, String text) throws InvalidCommandError {
         try {
-            
+
             for (int i = 0; i < list.size(); i++) {
                 switch (list.get(i).charAt(0)) {
                     case 'i':
@@ -113,13 +85,13 @@ public class WordEditor {
                         text = BlankLine(text);
                         break;
                     case 's':
-                        text = AlignLeft(text);
+                        text = SingleLine(text);
                         break;
                     case 'd':
                         text = DoubleSpaceing(text);
                         break;
                     case 'n':
-                        text = NIndentation(text);
+                        text = AlignLeft(text);
                         break;
                     case '1':
                         text = AlignLeft(text);
@@ -127,210 +99,471 @@ public class WordEditor {
                     case 'l':
                         text = AlignLeft(text);
                         break;
-                    
+                    case 't':
+                        text = Title(text);
+                        break;
+                    case '2':
+                        text = TwoColumns(text);
+                        break;
+
                     default:
-                        System.out.println("Not Present");
-                    
+                        throw new InvalidCommandError("Invalid Input Command");
+
                 }
             }
             return text;
+        } catch (InvalidCommandError error) {
+            return error.getMessage();
         } catch (Exception ex) {
             System.out.println(ex);
         }
         return "";
     }
-    
+
     public int SaveFile(String text, String filePath) {
         try {
             FileWriter writer = new FileWriter(filePath, true);
             writer.write(text);
-            //writer.write("\r\n");   // write new line
-            //writer.write("Good Bye!");
+
             writer.close();
             return 1;
         } catch (IOException e) {
             return 2;
             //e.printStackTrace();
         }
-        
+
     }
-    
-    public void SaveFile(ArrayList<String> text) {
-        try {
-            FileWriter writer = new FileWriter("MyFile.txt", true);
-            for (int i = 0; i < text.size(); i++) {
-                writer.write(text.get(i));
-                writer.write("\r\n");   // write new line
-            }
-            //writer.write("Good Bye!");
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
+
     public String AlignRight(String str) {
+        str = str.replace("\n", "");
         int j = 0;
         int m = str.length() / 80;
+        int iterator = 0;
+        char curr = ' ';
 
-        // str = StringUtils.leftPad(str, 80);
         String abc = "";
         while (j <= m) {
-            if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
-                //  abc.format("%-10s",abc);
+            iterator = 80;
+            if (str.length() > 80) {
+                j++;
+                if (str.charAt(79) == ' ') {
+                    abc += str.substring(0, 79) + "\n";
+                    str = str.substring(80);
+                } else if (str.charAt(80) == ' ') {
+                    abc += str.substring(0, 80) + "\n";
+                    str = str.substring(81);
+                } else {
+                    do {
+                        iterator--;
+                        curr = str.charAt(iterator);
+                    } while (curr != ' ');
+
+                    for (int i = 0; i < (80 - iterator); i++) {
+                        abc += " ";
+                    }
+                    abc += str.substring(0, iterator) + "\n";
+                    str = str.substring(iterator + 1);
+                }
             } else {
-                abc = abc + StringUtils.leftPad(str.substring(80 * j, str.length()), 80) + System.lineSeparator();
-                
+                j++;
+                for (int i = 0; i < (80 - str.length()); i++) {
+                    abc += " ";
+                }
+                abc += str.substring(0, str.length()) + "\n";
             }
-            //call switch case
-            j++;
         }
+
+        history = "right";
         return abc;
     }
-    
+
     public String AlignLeft(String str) {
+        str = str.replace("\n", "");
         int j = 0;
         int m = str.length() / 80;
-       // str = str.substring(1);
+        int iterator = 80;
+        char curr = ' ';
         String abc = "";
+
         while (j <= m) {
-            if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
-                //  abc.format("%-10s",abc);
+            if (str.length() > 80) {
+                j++;
+                if (str.charAt(79) == ' ') {
+                    abc += str.substring(0, 79) + "\n";
+                    str = str.substring(80);
+                } else if (str.charAt(80) == ' ') {
+                    abc += str.substring(0, 80) + "\n";
+                    str = str.substring(81);
+                } else {
+                    do {
+                        iterator--;
+                        curr = str.charAt(iterator);
+                    } while (curr != ' ');
+
+                    abc += str.substring(0, iterator) + "\n";
+                    str = str.substring(++iterator);
+                }
             } else {
-                abc = abc + str.substring(80 * j, str.length()) + System.lineSeparator();
-                
+                abc += str + "\n";
+                j++;
             }
-            j++;
         }
+        history = "left";
         return abc;
     }
-    
+
     public String AlignCenter(String str) {
+        str = str.replace("\n", "");
+        int i = 0;
         int j = 0;
         int m = str.length() / 80;
-
-        // str = StringUtils.leftPad(str, 80);
+        int iterator = 80;
+        char curr = ' ';
         String abc = "";
+        String space_to_center = "";
         while (j <= m) {
-            if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
-                //  abc.format("%-10s",abc);
+            if (str.length() > 80) {
+                j++;
+                if (str.charAt(79) == ' ') {
+                    abc += str.substring(0, 79) + "\n";
+                    str = str.substring(80);
+                } else if (str.charAt(80) == ' ') {
+                    abc += str.substring(0, 80) + "\n";
+                    str = str.substring(81);
+                } else {
+                    do {
+                        iterator--;
+                        curr = str.charAt(iterator);
+                    } while (curr != ' ');
+
+                    space_to_center = "";
+                    for (i = str.substring(0, iterator).length(); i < 80; i += 2) {
+                        space_to_center += " ";
+                    }
+                    abc += space_to_center + str.substring(0, iterator) + "\n";
+                    str = str.substring(++iterator);
+                }
             } else {
-                abc = abc + StringUtils.center(str.substring(80 * j, str.length()), 80) + System.lineSeparator();
-                
+                space_to_center = "";
+                for (i = str.length(); i < 80; i += 2) {
+                    space_to_center += " ";
+                }
+                abc += space_to_center + str + "\n";
+                j++;
             }
-            //call switch case
-            j++;
         }
+        history = "center";
         return abc;
-        
     }
-    
+
     public String NIndentation(String str) {
-        int j = 0;
-        
-        str = str.trim();
-        int m = str.length() / 80;
-        String abc = "";
-        while (j <= m) {
-            if (j < m) {
-                String z = str.substring(80 * j, (80 * j + 80));
-                int za = z.length();
-                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
-                //  abc.format("%-10s",abc);
-            } else {
-                String z = str.substring(80 * j, str.length());
-                int za = z.length();
-                abc = abc + str.substring(80 * j, str.length()) + System.lineSeparator();
-                
-            }
-            j++;
-        }
-        return abc;
-    }
-    
-    public String BIndentation(String str) {
+        str = str.replace("\n", "");
         int j = 0;
         int m = str.length() / 80;
-        //str = str.substring(1);
+        int iterator = 80;
+        char curr = ' ';
         String abc = "";
-        while (j <= m) {
-            if (j < m) {
-                abc = abc + "          " + str.substring(70*j, (70*j+ 70))
-                        + System.lineSeparator();
-                //  abc.format("%-10s",abc);
-            } else {
-                abc = abc + "          " + str.substring(70 * j, str.length())
-                        + System.lineSeparator();
-                
-            }
-            j++;
-        }
-        return abc;
-    }
-    
-    public String IIndentation(String str) {
-        int j = 0;
-        
-        str = str.trim();
-        String abc = "";
-        abc = abc + "     " + str.substring(0, 75)
-                + System.lineSeparator();
-        str = str.substring(75);
-        int m = str.length() / 80;
-        while (j <= m) {
-            if (j < m) {
-                
-                abc = abc + str.substring(80 * j, (80 * j + 80))
-                        + System.lineSeparator();
 
-                //  abc.format("%-10s",abc);
+        while (j <= m) {
+            if (str.length() > 80) {
+                j++;
+                if (str.charAt(79) == ' ') {
+                    abc += str.substring(0, 79) + "\n";
+                    str = str.substring(80);
+                } else if (str.charAt(80) == ' ') {
+                    abc += str.substring(0, 80) + "\n";
+                    str = str.substring(81);
+                } else {
+                    do {
+                        iterator--;
+                        curr = str.charAt(iterator);
+                    } while (curr != ' ');
+
+                    abc += str.substring(0, iterator) + "\n";
+                    str = str.substring(++iterator);
+                }
             } else {
-                abc = abc + str.substring(80 * j, str.length())
-                        + System.lineSeparator();
-                
+                abc += str + "\n";
+                j++;
             }
-            j++;
         }
+        history = "left";
+        return abc;
+    }
+
+    public String BIndentation(String str) {
+        str = str.replace("\n", "");
+        int j = 0;
+        int m = str.length() / 70;
+        int iterator = 70;
+        char curr = ' ';
+        String abc = "";
+
+        while (j <= m) {
+            if (str.length() > 70) {
+                j++;
+                if (str.charAt(69) == ' ') {
+                    abc += "          " + str.substring(0, 69) + "\n";
+                    str = str.substring(70);
+                } else if (str.charAt(70) == ' ') {
+                    abc += "          " + str.substring(0, 70) + "\n";
+                    str = str.substring(71);
+                } else {
+                    do {
+                        iterator--;
+                        curr = str.charAt(iterator);
+                    } while (curr != ' ');
+
+                    abc += "          " + str.substring(0, iterator) + "\n";
+                    str = str.substring(++iterator);
+                }
+            } else {
+                abc += "          " + str + "\n";
+                j++;
+            }
+        }
+        history = "left";
+        return abc;
+    }
+
+    public String IIndentation(String str) {
+        str = str.replace("\n", "");
+        str = str.trim();
+
+        int j = 0;
+        int m = str.length() / 80;
+        int iterator = 75;
+        char curr = ' ';
+        String abc = "     ";
+        //str = str.substring(75);
+
+        while (j <= m) {
+            if (str.length() > 80) {
+                j++;
+                if (str.charAt(74) == ' ') {
+                    abc += str.substring(0, 74) + "\n";
+                    str = str.substring(75);
+                } else if (str.charAt(75) == ' ') {
+                    abc += str.substring(0, 75) + "\n";
+                    str = str.substring(76);
+                } else {
+                    do {
+                        iterator--;
+                        curr = str.charAt(iterator);
+                    } while (curr != ' ');
+                    abc += str.substring(0, iterator) + "\n";
+                    str = str.substring(++iterator);
+                }
+            } else {
+                abc += str + "\n";
+                j++;
+            }
+        }
+        history = "left";
         return abc;
     }
 
     public String BlankLine(String str) {
-        int j = 0;
-        int m = str.length() / 80;
-        str = str.substring(1);
         String abc = "";
-        while (j <= m) {
-            if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80)) + System.lineSeparator();
-                //  abc.format("%-10s",abc);
-            } else {
-                abc = abc + str.substring(80 * j, str.length())
-                        + System.lineSeparator() + System.lineSeparator();
-                
-            }
-            j++;
+        if (history.equals("right")) {
+            abc = "\n" + AlignRight(str);
+        }
+        if (history.equals("left")) {
+            abc = "\n" + AlignLeft(str);
+        }
+        if (history.equals("center")) {
+            abc = "\n" + AlignCenter(str);
         }
         return abc;
     }
 
     public String DoubleSpaceing(String str) {
-        int j = 0;
-        int m = str.trim().replace("  ", "").length() / 80;
-        String abc = "";
-        while (j <= m) {
-            if (j < m) {
-                abc = abc + str.substring(80 * j, (80 * j + 80))
-                        + System.lineSeparator() + System.lineSeparator();
-                //  abc.format("%-10s",abc);
-            } else {
-                abc = abc + str.substring(80 * j, str.length())
-                        + System.lineSeparator() + System.lineSeparator();
-                
+                String abc = "";
+        try {
+        str = str.replace("\n", "");
+        int j = 0, i = 0;
+        int m = str.length() / 80;
+        int iterator = 80;
+        char curr = ' ';
+        String space_to_center = "";
+
+        if (history.equals("right")) {
+            while (j <= m) {
+                iterator = 80;
+                if (str.length() > 80) {
+                    j++;
+                    if (str.charAt(79) == ' ') {
+                        abc += str.substring(0, 79) + "\n" + "\n";
+                        str = str.substring(80);
+                    } else if (str.charAt(80) == ' ') {
+                        abc += str.substring(0, 80) + "\n" + "\n";
+                        str = str.substring(81);
+                    } else {
+                        do {
+                            iterator--;
+                            curr = str.charAt(iterator);
+                        } while (curr != ' ');
+
+                        for (i = 0; i < (80 - iterator); i++) {
+                            abc += " ";
+                        }
+                        abc += str.substring(0, iterator) + "\n" + "\n";
+                        str = str.substring(iterator + 1);
+                    }
+                } else {
+                    j++;
+                    for (i = 0; i < (80 - str.length()); i++) {
+                        abc += " ";
+                    }
+                    abc += str.substring(0, str.length()) + "\n" + "\n";
+                }
             }
-            j++;
+        } else if (history.equals("center")) {
+            while (j <= m) {
+                if (str.length() > 80) {
+                    j++;
+                    if (str.charAt(79) == ' ') {
+                        abc += str.substring(0, 79) + "\n\n";
+                        str = str.substring(80);
+                    } else if (str.charAt(80) == ' ') {
+                        abc += str.substring(0, 80) + "\n\n";
+                        str = str.substring(81);
+                    } else {
+                        do {
+                            iterator--;
+                            curr = str.charAt(iterator);
+                        } while (curr != ' ');
+
+                        space_to_center = "";
+                        for (i = str.substring(0, iterator).length(); i < 80; i += 2) {
+                            space_to_center += " ";
+                        }
+                        abc += space_to_center + str.substring(0, iterator) + "\n\n";
+                        str = str.substring(++iterator);
+                    }
+                } else {
+                    space_to_center = "";
+                    for (i = str.length(); i < 80; i += 2) {
+                        space_to_center += " ";
+                    }
+                    abc += space_to_center + str + "\n\n";
+                    j++;
+                }
+            }
+        } else {
+            while (j <= m) {
+            if (str.length() > 80) {
+                j++;
+                if (str.charAt(79) == ' ') {
+                    abc += str.substring(0, 79) + "\n\n";
+                    str = str.substring(80);
+                } else if (str.charAt(80) == ' ') {
+                    abc += str.substring(0, 80) + "\n\n";
+                    str = str.substring(81);
+                } else {
+                    do {
+                        iterator--;
+                        curr = str.charAt(iterator);
+                    } while (curr != ' ');
+
+                    abc += str.substring(0, iterator) + "\n\n";
+                    str = str.substring(++iterator);
+                }
+            } else {
+                abc += str + "\n\n";
+                j++;
+            }
+        }
+        }
+        }
+    catch (Exception e) {
+        System.out.println(e);
+    }
+        return abc;
+    }
+
+    public String TwoColumns(String str) {
+        str = str.replace("\n", "");
+        boolean var = false;
+        String abc = "";
+        if (str.length() <= 35) {
+            abc = str.substring(0, str.length()) + "\n";
+        } else if (str.length() < 70 && str.length() > 35) {
+            abc = str.substring(0, 35) + "          " + str.substring(35, str.length()) + "\n";
+        } else {
+            double j = str.length() / 35.0;
+            int m = 0;
+            if (j % 1 == 0) {
+                m = (int) j;
+                var = true;
+            } else {
+                m = (int) (j + 1);
+            }
+            int n = m / 2;
+            String[] array = new String[m];
+            if (str.length() < 35) {
+                array[0] = str.substring(0, str.length());
+            } else {
+                for (int i = 0; i < m; i++) {
+
+                    if (str.length() - (i * 35) <= 35) {
+                        array[i] = str.substring(i * 35, str.length());
+                    } else {
+                        array[i] = str.substring(i * 35, i * 35 + 35);
+                    }
+                }
+            }
+            if (var) {
+                for (int i = 0; i <= n - 1; i++) {
+
+                    if (array[i] != null) {
+                        abc += array[i] + "          ";
+                        if (n + i < array.length) {
+                            abc += array[n + i] + "\n";
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i <= n; i++) {
+
+                    if (array[i] != null) {
+                        abc += array[i] + "          ";
+                        if (n + i < array.length - 1) {
+                            abc += array[n + i + 1] + "\n";
+                        }
+                    }
+                }
+            }
+            if (array.length % 2 != 0) {
+                abc += "\n";
+            }
+        }
+        return abc;
+    }
+
+    public String Title(String str) {
+        int j = 0;
+        int m = str.length() / 80;
+        String abc = "";
+
+        abc = str.split("\n")[1];
+        abc = StringUtils.center(abc.substring(0, abc.length()), 80) + System.lineSeparator();
+        str = str.substring(abc.length() - 1, str.length());
+        abc += AlignLeft(str);
+
+        return abc;
+    }
+
+    public String SingleLine(String str) {
+        String abc = "";
+        if (history.equals("right")) {
+            abc = AlignRight(str);
+        }
+        if (history.equals("left")) {
+            abc = AlignLeft(str);
+        }
+        if (history.equals("center")) {
+            abc = AlignCenter(str);
         }
         return abc;
     }
