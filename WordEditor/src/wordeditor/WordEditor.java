@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  *
  * @author Kunal Sharma
+ * CSE 360 Project
  */
 public class WordEditor {
 
